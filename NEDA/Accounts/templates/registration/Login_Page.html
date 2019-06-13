@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <!--<link href="css/StyleSheet.css" rel="stylesheet">-->
+    <!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+    <!--<link href="css/effect.css" rel="stylesheet" type="text/css">-->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <!--<meta charset="utf-8">-->
+    <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+    <!--<link rel='stylesheet prefetch' href='https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css'>-->
+    <!--<script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>-->
+    <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.26/vue.min.js'></script>-->
+    <!--<script src='https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js'></script>-->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">-->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+    <!--<script src="https://unpkg.com/vue"></script>-->
+    <!---->
+    {% load static %}
+    <meta charset="UTF-8">
+    <link href="{% static 'css/StyleSheet.css' %}" rel="stylesheet">
+    <script src="{% static 'js/jsdelivr' %}"></script>
+    <link href="{% static 'css/effect.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/maxcdn.css' %}">
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/maxcdn.js' %}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <link href="{% static 'css/googleapis.css' %}" rel="stylesheet">
+    <link rel='stylesheet prefetch' href="{% static 'css/rawgit.css' %}">
+    <script src="{% static 'js/jquery1.js' %}"></script>
+    <script src="{% static 'js/cloudeflare.js' %}"></script>
+    <script src="{% static 'js/rawgit1.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="{% static 'js/unpkg.js' %}"></script>
+    <title>Login Page</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-8 col-lg-8">
+            <img id="Target" class="my_image" src="{% static 'pictures/most_popular_twitter_topics.png' %}">
+        </div>
+        <div class="col-sm-4 col-lg-4">
+            <div class="login-form">
+                <div id="Login">
+                    <transition name="custom-classes-transition"
+                                enter-active-class="animated zoomIn"
+                                leave-active-class="animated zoomOut">
+                        <div v-if="seen" class="main-div card">
+                            <div class="panel">
+                                <h2>به وبسایت ما خوش آمدید</h2>
+                                <p>لطفا نام کاربری و کلمه عبور خود را وارد کنید</p>
+                                {{ login_form.errors }}
+                            </div>
+                            <form class="form-group card-body" method="post" action="{% url 'login_register' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="state" value="login"/>
+                                {% render_field login_form.username class="form-control1" type="text" placeholder="نام کاربری یا ایمیل" autocomplete='on' %}
+                                {#                                <input class="form-control1" type="text" placeholder="نام کاربری یا ایمیل"#}
+                                {#                                       autocomplete='on'#}
+                                {#                                       required/>#}
+                                <div class="buttonInside">
+                                    {% render_field login_form.password v-model="password" name="pass" id="password" class="form-control1" placeholder="رمز عبور" %}
+                                    {#                                    <input :type="passwordFieldType" v-model="password" name="pass" id="password"#}
+                                    {#                                           class="form-control1"#}
+                                    {#                                           placeholder="رمز عبور" required/>#}
+                                    <button class="eye_btn" type="button" v-on:mousedown="show_hide_pass"
+                                            v-on:mouseup="hide_pass">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                                <br/>
+                                <div><center>
+                                <script src='https://www.google.com/recaptcha/api.js'></script>
+                                <div class="g-recaptcha" data-sitekey="6LcDE2sUAAAAADcpGZxjeglK3GJ75PJ8SghlhjF9"></div>
+                                </center></div>
+                                <input class="btn btn-primary" type="submit" value="ورود"/>
+                                <button class="btn btn-primary1" type="button" v-on:click="change_pages">ثبت نام
+                                </button>
+                                <a href="">رمز خود را فراموش کرده اید؟</a>
+                            </form>
+                        </div>
+                    </transition>
+                </div>
+                <div id="SignUp">
+                    <transition name="custom-classes-transition"
+                                enter-active-class="animated zoomIn"
+                                leave-active-class="animated zoomOut">
+                        <div v-if="show" class="main-div card">
+                            <div class="panel">
+                                <h2>به وبسایت ما خوش آمدید</h2>
+                                <p>لطفا مشخصات خود را وارد کنید</p>
+                            </div>
+                            <form class="form-group card-body" method="post" action="{% url 'login_register' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="state" value="register"/>
+                                {% render_field register_form.first_name class="form-control1" type="text" placeholder="نام" %}
+                                {#                                <input class="form-control1" type="text" placeholder="نام" required/>#}
+                                {% render_field register_form.last_name class="form-control1" type="text" placeholder="نام خانوادگی" %}
+                                {#                                <input class="form-control1" type="text" placeholder="نام خانوادگی" required/>#}
+                                {% render_field register_form.username class="form-control1" type="text" placeholder="نام کاربری" %}
+                                {#                                <input class="form-control1" type="text" placeholder="نام کاربری" required/>#}
+                                <div class="buttonInside">
+                                    {#                                  {{ register_form.password1|attr:":type:passwordFieldType"|attr:"class:form-control1"|attr:"v-model:password"|attr:"placeholder:کلمه عبور" }}#}
+                                    {% render_field register_form.password1 class="form-control1" v-model="password" placeholder="کلمه عبور" %}
+                                    {#                                    <input class="form-control1" :type="passwordFieldType" v-model="password"#}
+                                    {#                                           placeholder="کلمه عبور" required/>#}
+                                    <button class="eye_btn" type="button" v-on:mousedown="show_hide_pass"
+                                            v-on:mouseup="hide_pass">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="buttonInside">
+                                    {% render_field register_form.password2 class="form-control1" v-model="re_password" placeholder="تکرار کلمه عبور" %}
+                                    {#                                    <input class="form-control1" :type="repasswordFieldType" v-model="re_password"#}
+                                    {#                                           placeholder="تکرار کلمه عبور" required/>#}
+                                    <button class="eye_btn" type="button" v-on:mousedown="show_hide_repass"
+                                            v-on:mouseup="hide_repass">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% render_field register_form.email class="form-control1" type="email" placeholder="ایمیل" %}
+                                {#                                <input class="form-control1" type="email" placeholder="ایمیل" required/>#}
+                                {% render_field register_form.phone_number class="form-control1" type="text" placeholder="شماره تماس" %}
+                                {#                                <input class="form-control1" type="text" placeholder="شماره تماس" required/>#}
+                                <label class="container"><p class="text">تمام <a href="https://google.com">قوانین</a> را
+                                    پذیرفتم</p>
+                                    <input type="checkbox" name="rules" required/>
+                                    <span class="checkmark"></span>
+                                </label>
+                                <button class="btn btn-primary" type="submit">ثبت نام</button>
+                                <button class="btn btn-primary1" type="button" @click="change_pages1">ورود</button>
+                            </form>
+                        </div>
+                    </transition>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/login vuejs.js' %}"></script>
+</body>
+</html>

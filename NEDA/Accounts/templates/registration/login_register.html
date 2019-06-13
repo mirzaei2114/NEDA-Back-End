@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login_register</title>
+</head>
+<body>
+<h1>Registration</h1>
+    <form method="post" action="{% url 'login_register' %}">
+        {% csrf_token %}
+
+        {% if register_form.errors %}
+        {{ register_form.errors }}
+        {% endif %}
+
+        <p>{{ register_form.first_name.label_tag }}
+        {{ register_form.first_name }}
+        </p>
+        <p>{{ register_form.last_name.label_tag }}
+        {{ register_form.last_name }}
+        </p>
+        <p>{{ register_form.username.label_tag }}
+        {{ register_form.username }}
+        {{ register_form.username.help_text }}
+        </p>
+        <p>{{ register_form.password1.label_tag }}
+        {{ register_form.password1 }}
+        {{ register_form.password1.help_text }}
+        </p>
+        <p>{{ register_form.password2.label_tag }}
+        {{ register_form.password2 }}
+        {{ register_form.password2.help_text }}
+        </p>
+        <p>{{ register_form.email.label_tag }}
+        {{ register_form.email }}
+        </p>
+        {{ register_form.phone_number.label_tag }}
+        {{ register_form.phone_number }}
+        {{ register_form.phone_number.help_text }}
+        </p>
+
+
+        <input name="state" type="hidden" value="register">
+        <input type="submit" value="Register">
+    </form>
+<h1>Login</h1>
+    <form method="post" action="{% url 'login_register' %}">
+
+        {% if login_form.errors %}
+        {{ login_form.errors }}
+        {% endif %}
+
+        {% if next %}
+        <p>Hey, you can't access that page!</p>
+        {% endif %}
+
+        {% csrf_token %}
+        <p>
+        {{ login_form.username.label_tag }}
+        {{ login_form.username }}
+        </p>
+        <p>
+        {{ login_form.password.label_tag }}
+        {{ login_form.password }}
+        </p>
+        <input name="state" type="hidden" value="login">
+        <p><input type="submit" value="login"></p>
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+</body>
+</html>
