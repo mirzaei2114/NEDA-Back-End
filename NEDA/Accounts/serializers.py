@@ -34,12 +34,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                     date_joined=timezone.now()
                 )
                 user.set_password(validated_data['password'])
+                user.save()
                 patient = Patient.objects.create(
                     user_id=user.id,
                     social_number=validated_data['social_number'],
                     gender=validated_data['gender'],
                     mobile_number=validated_data['mobile_number'],
                 )
+                patient.save()
             except Exception as e:
                 user.delete()
                 if patient:
@@ -88,12 +90,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                     date_joined=timezone.now()
                 )
                 user.set_password(validated_data['password'])
+                user.save()
                 hospital = Hospital.objects.create(
                     user_id=user.id,
                     post_code=validated_data['post_code'],
                     phone_number=validated_data['phone_number'],
                     address=validated_data['address'],
                 )
+                hospital.save()
             except Exception as e:
                 user.delete()
                 if hospital:
