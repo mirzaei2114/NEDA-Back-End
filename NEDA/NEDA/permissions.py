@@ -28,6 +28,9 @@ class IsOwnerSuperuserOrReadOnly(permissions.BasePermission):
         return (request.user and request.user.is_superuser) or (
             obj.user == request.user and request.method in ('PUT', 'DELETE'))
 
+
 class IsNotAuthenticated(permissions.BasePermission):
     def has_permission(self, request, view):
         return not request.user.is_authenticated
+
+
