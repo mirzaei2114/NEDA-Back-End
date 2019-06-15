@@ -22,17 +22,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         doctor = None
         hospital = None
         if validated_data['is_patient'] and not validated_data['is_doctor'] and not validated_data['is_hospital']:
+            user = MyUser.objects.create(
+                first_name=validated_data['first_name'],
+                last_name=validated_data['last_name'],
+                username=validated_data['username'],
+                email=validated_data['email'],
+                is_patient=validated_data['is_patient'],
+                is_doctor=validated_data['is_doctor'],
+                is_hospital=validated_data['is_hospital'],
+                date_joined=timezone.now()
+            )
             try:
-                user = MyUser.objects.create(
-                    first_name=validated_data['first_name'],
-                    last_name=validated_data['last_name'],
-                    username=validated_data['username'],
-                    email=validated_data['email'],
-                    is_patient=validated_data['is_patient'],
-                    is_doctor=validated_data['is_doctor'],
-                    is_hospital=validated_data['is_hospital'],
-                    date_joined=timezone.now()
-                )
                 user.set_password(validated_data['password'])
                 user.save()
                 patient = Patient.objects.create(
@@ -49,18 +49,18 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 raise serializers.ValidationError('Bad request at: ' + str(e.args))
 
         elif not validated_data['is_patient'] and validated_data['is_doctor'] and not validated_data['is_hospital']:
+            user = MyUser.objects.create(
+                first_name=validated_data['first_name'],
+                last_name=validated_data['last_name'],
+                username=validated_data['username'],
+                email=validated_data['email'],
+                province=validated_data['province'],
+                is_patient=validated_data['is_patient'],
+                is_doctor=validated_data['is_doctor'],
+                is_hospital=validated_data['is_hospital'],
+                date_joined=timezone.now()
+            )
             try:
-                user = MyUser.objects.create(
-                    first_name=validated_data['first_name'],
-                    last_name=validated_data['last_name'],
-                    username=validated_data['username'],
-                    email=validated_data['email'],
-                    province=validated_data['province'],
-                    is_patient=validated_data['is_patient'],
-                    is_doctor=validated_data['is_doctor'],
-                    is_hospital=validated_data['is_hospital'],
-                    date_joined=timezone.now()
-                )
                 user.set_password(validated_data['password'])
                 user.save()
                 doctor = Doctor.objects.create(
@@ -78,17 +78,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 raise serializers.ValidationError('Bad request at: ' + str(e.args))
 
         elif not validated_data['is_patient'] and not validated_data['is_doctor'] and validated_data['is_hospital']:
+            user = MyUser.objects.create(
+                first_name=validated_data['first_name'],
+                username=validated_data['username'],
+                email=validated_data['email'],
+                province=validated_data['province'],
+                is_patient=validated_data['is_patient'],
+                is_doctor=validated_data['is_doctor'],
+                is_hospital=validated_data['is_hospital'],
+                date_joined=timezone.now()
+            )
             try:
-                user = MyUser.objects.create(
-                    first_name=validated_data['first_name'],
-                    username=validated_data['username'],
-                    email=validated_data['email'],
-                    province=validated_data['province'],
-                    is_patient=validated_data['is_patient'],
-                    is_doctor=validated_data['is_doctor'],
-                    is_hospital=validated_data['is_hospital'],
-                    date_joined=timezone.now()
-                )
                 user.set_password(validated_data['password'])
                 user.save()
                 hospital = Hospital.objects.create(
@@ -103,6 +103,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 if hospital:
                     hospital.delete()
                 raise serializers.ValidationError('Bad request at: ' + str(e.args))
+        if not user:
+            raise serializers.ValidationError('Bad request at user information')
         return user
 
     class Meta:
