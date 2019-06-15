@@ -114,6 +114,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'social_number', 'gender', 'phone_number', 'address',
                   'medical_system_number', 'expertise', 'post_code',)
 
+    def validate(self, attrs):
+        if [attrs.pop('is_patient'), attrs.pop('is_doctor'), attrs.pop('is_hospital')].count(True) != 1:
+            raise serializers.ValidationError('A user can be one of patient, doctor or hospital')
+        return super().validate(attrs)
+
 
 class InnerUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
