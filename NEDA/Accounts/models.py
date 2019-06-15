@@ -26,7 +26,7 @@ class MyUser(AbstractUser):
 
 
 class Patient(models.Model):
-    user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='patient_user')
     social_number = models.CharField(max_length=10, primary_key=True)
     gender = models.CharField(choices=GENDERS_CHOICES, max_length=3)
     phone_number = models.CharField(max_length=8, blank=True)
@@ -41,10 +41,10 @@ class Patient(models.Model):
 
 
 class Doctor(models.Model):
-    user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='doctor_user')
     medical_system_number = models.CharField(primary_key=True, max_length=50)
     gender = models.CharField(choices=GENDERS_CHOICES, max_length=3)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True)
     expertise = models.CharField(max_length=50)
     mobile_number = models.CharField(help_text='Like 09XXXXXXXXX', max_length=11, unique=True)
     bio = models.CharField(max_length=1024, default='درباره شما :)')
@@ -56,7 +56,7 @@ class Doctor(models.Model):
 
 
 class Hospital(models.Model):
-    user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(MyUser, on_delete=models.CASCADE, related_name='hospital_user')
     phone_number = models.CharField(max_length=8)
     address = models.CharField(max_length=512)
     post_code = models.CharField(max_length=10, primary_key=True)

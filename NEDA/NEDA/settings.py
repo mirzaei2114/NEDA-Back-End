@@ -134,7 +134,7 @@ AUTH_USER_MODEL = 'Accounts.MyUser'
 import NEDA.authentications
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'NEDA.authentications.CsrfExemptTokenAuthentication',
