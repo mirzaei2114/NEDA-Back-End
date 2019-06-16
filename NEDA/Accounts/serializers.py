@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
+
+from TimeReservation.models import Clinic
 from .models import MyUser, Patient, Doctor, Hospital
 
 
@@ -140,11 +142,13 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.ReadOnlyField(source='user.username')
     password = serializers.ReadOnlyField(source='user.password')
     email = serializers.ReadOnlyField(source='user.email')
+    clinics = serializers.StringRelatedField(read_only=True, many=True)
+    hospitals = serializers.StringRelatedField(read_only=True, many=True)
 
     class Meta:
         model = Doctor
         fields = ('url', 'first_name', 'last_name', 'gender', 'username', 'password', 'email',
-                  'medical_system_number', 'date_of_birth', 'expertise', 'bio', 'picture')
+                  'medical_system_number', 'date_of_birth', 'expertise', 'bio', 'picture', 'clinics', 'hospitals')
 
 
 class HospitalSerializer(serializers.HyperlinkedModelSerializer):

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="db.sqlite3" uuid="9071db30-eaf7-4d8e-9fba-7edf563d356a">
+    <data-source source="LOCAL" name="jdbc:sqlite:D:/MyFolder/university/System Analysis &amp; Design/NEDA-Back-End/NEDA/db.sqlite3" uuid="95df6e24-7e64-4aea-8691-65528620bbcb">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/db.sqlite3</jdbc-url>
       <driver-properties>
