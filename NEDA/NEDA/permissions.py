@@ -13,7 +13,7 @@ class IsSameUserSuperuserOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return (request.user and request.user.is_superuser) or (
+        return (request.user.is_authenticated and request.user.is_superuser) or (
             obj == request.user and request.method in ('PUT', 'DELETE'))
 
 
@@ -27,14 +27,14 @@ class IsOwnerSuperuserOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return (request.user and request.user.is_superuser) or (
+        return (request.user.is_authenticated and request.user.is_superuser) or (
             obj.user == request.user and request.method in ('PUT', 'DELETE'))
 
 
 class IsNotAuthenticated(permissions.BasePermission):
     def has_permission(self, request, view):
         return not request.user.is_authenticated
-
+      
 
 class IsSameDoctorIsDoctorOrReadonly(permissions.BasePermission):
     """
