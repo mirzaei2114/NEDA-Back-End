@@ -25,7 +25,7 @@ SECRET_KEY = '#3y)k1%bo%vqd6+pxe_9tusenb@-0=jdllti=@_nadv9rcpkbn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['nedabackend.pythonanywhere.com', '127.0.0.1']
 
 
 # Application definition
@@ -124,6 +124,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 LOGIN_REDIRECT_URL = '/'
@@ -144,7 +145,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/Media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
 
 CORS_ORIGIN_WHITELIST = 'http://localhost:3000',

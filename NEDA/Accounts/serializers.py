@@ -107,6 +107,23 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError('Bad request at user information')
         return user
 
+    def update(self, instance, validated_data):
+        try:
+            instance.first_name = validated_data['first_name']
+            instance.last_name = validated_data['last_name']
+            instance.username = validated_data['username']
+            if 'province' in validated_data:
+                instance.province = validated_data['province']
+            instance.email = validated_data['email']
+            instance.is_patient = validated_data['is_patient']
+            instance.is_doctor = validated_data['is_doctor']
+            instance.is_hospital = validated_data['is_hospital']
+            instance.set_password(validated_data['password'])
+            instance.save()
+        except Exception as e:
+            raise serializers.ValidationError('Bad Request at: ' + str(e.args))
+        return instance
+
     class Meta:
         model = MyUser
         fields = ('url', 'id', 'first_name', 'last_name', 'username', 'password', 'mobile_number',
@@ -115,15 +132,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'medical_system_number', 'expertise', 'post_code',)
 
     def validate(self, attrs):
-        if [attrs.pop('is_patient'), attrs.pop('is_doctor'), attrs.pop('is_hospital')].count(True) != 1:
+        if [attrs['is_patient'], attrs['is_doctor'], attrs['is_hospital']].count(True) != 1:
             raise serializers.ValidationError('A user can be one of patient, doctor or hospital')
         return super().validate(attrs)
 
 
 class InnerUserSerializer(serializers.HyperlinkedModelSerializer):
+    username = serializers.CharField(read_only=True)
+
     class Meta:
         model = MyUser
-        fields = ('url', 'password', 'first_name', 'last_name', 'email', 'province')
+        fields = ('url', 'username', 'password', 'first_name', 'last_name', 'email', 'province')
 
     @staticmethod
     def update_user(validated_data, user):
@@ -136,7 +155,8 @@ class InnerUserSerializer(serializers.HyperlinkedModelSerializer):
             user.last_name = user_info['last_name']
             user.email = user_info['email']
             user.province = user_info['province']
-            user.set_password(user_info['password'])
+            if user.password != user_info['password']:
+                user.set_password(user_info['password'])
             user.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)

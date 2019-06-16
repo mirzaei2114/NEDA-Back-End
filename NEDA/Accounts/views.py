@@ -6,7 +6,7 @@ from .models import MyUser, Patient, Doctor, Hospital
 from .serializers import UserSerializer, PatientSerializer, DoctorSerializer, HospitalSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsSameUserSuperuserOrReadOnly,)
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
@@ -14,7 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class PatientViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
-    permission_classes = (IsSameUserSuperuserOrReadOnly,)
+    permission_classes = (IsOwnerSuperuserOrReadOnly,)
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
