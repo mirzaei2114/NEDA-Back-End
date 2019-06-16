@@ -141,12 +141,20 @@
       <find>MyUser</find>
       <find>phone_number</find>
       <find>serializers.RelatedField</find>
+      <find>', '</find>
+      <find>pre_</find>
+      <find>Patient</find>
+      <find>patient</find>
     </findStrings>
     <replaceStrings>
       <replace>Token</replace>
       <replace>'user</replace>
       <replace>Basic</replace>
       <replace>MyRelatedField</replace>
+      <replace>\n</replace>
+      <replace>previous_info['</replace>
+      <replace>Doctor</replace>
+      <replace>doctor</replace>
     </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -361,7 +369,6 @@
           <caret line="13" column="52" lean-forward="false" selection-start-line="13" selection-start-column="52" selection-end-line="13" selection-end-column="52" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -369,9 +376,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="22" column="20" lean-forward="false" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="20" />
-          <folding>
-            <element signature="e#628#660#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -442,13 +446,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Accounts/forms.py" />
-    <entry file="file://$PROJECT_DIR$/NEDA/authentications.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="3" column="35" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/NEDA/wsgi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
