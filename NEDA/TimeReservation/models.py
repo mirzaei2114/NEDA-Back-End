@@ -2,7 +2,7 @@
 from django.db import models
 
 # Create your models here.
-from Accounts.models import Doctor, Patient, Hospital
+from Accounts.models import Doctor, Patient, Hospital, PROVINCES_CHOICES
 
 DAYS_PER = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه']
 DAYS_CHOICES = [(item, item) for item in DAYS_PER]
@@ -11,6 +11,7 @@ DAYS_CHOICES = [(item, item) for item in DAYS_PER]
 class Clinic(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=64)
+    province = models.CharField(choices=PROVINCES_CHOICES, max_length=19)
     phone_number = models.CharField(max_length=8)
     address = models.CharField(max_length=512)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='clinics')
