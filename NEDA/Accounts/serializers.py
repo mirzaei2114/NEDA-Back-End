@@ -195,8 +195,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
             instance.date_of_birth = validated_data['date_of_birth']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
-
-                instance.save()
+            instance.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
@@ -224,8 +223,7 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
             instance.bio = validated_data['bio']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
-
-                instance.save()
+            instance.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
@@ -252,8 +250,7 @@ class HospitalSerializer(serializers.HyperlinkedModelSerializer):
             instance.bio = validated_data['bio']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
-
-                instance.save()
+            instance.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
