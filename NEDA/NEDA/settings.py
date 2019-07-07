@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'Accounts',
     'TimeReservation',
-    'MedicalHistory'
+    'MedicalHistory',
+    'RateAndComment'
 ]
 
 MIDDLEWARE = [

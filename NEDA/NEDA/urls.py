@@ -17,11 +17,13 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from rest_framework.authtoken.views import obtain_auth_token
 
 from Accounts.views import PatientViewSet, DoctorViewSet, HospitalViewSet, UserViewSet
 from MedicalHistory.views import MedicalHistoryViewSet
+from NEDA.views import GetToken
 from TimeReservation.views import ClinicViewSet, AppointmentTimeViewSet, WorkingHourViewSet
+from RateAndComment.views import DoctorRateViewSet, DoctorCommentViewSet, ClinicCommentViewSet, ClinicRateViewSet, \
+    HospitalCommentViewSet, HospitalRateViewSet
 
 from django.conf.urls.static import static
 from NEDA import settings
@@ -35,11 +37,17 @@ router.register('clinics', ClinicViewSet)
 router.register('working_hours', WorkingHourViewSet)
 router.register('appointment_times', AppointmentTimeViewSet)
 router.register('medical_histories', MedicalHistoryViewSet)
+router.register('doctor_rates', DoctorRateViewSet)
+router.register('doctor_comments', DoctorCommentViewSet)
+router.register('hospital_rates', HospitalRateViewSet)
+router.register('hospital_comments', HospitalCommentViewSet)
+router.register('clinic_rates', ClinicRateViewSet)
+router.register('clinic_comments', ClinicCommentViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('rest_framework.urls')),
-    url(r'^get_token/', obtain_auth_token),
+    url(r'^get_token/', GetToken.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
