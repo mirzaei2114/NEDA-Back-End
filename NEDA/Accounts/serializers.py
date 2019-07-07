@@ -181,8 +181,8 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Patient
         fields = ('url', 'user', 'social_number', 'gender', 'mobile_number', 'phone_number', 'address', 'date_of_birth',
-                  'picture', 'patient_appointment_times', 'patient_medical_histories')
-        depth = 1
+                  'picture', 'patient_appointment_times')
+        # depth = 1
 
     def update(self, instance, validated_data):
         user, previous_info = InnerUserSerializer.update_user(validated_data, instance.user)
@@ -196,8 +196,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
             instance.date_of_birth = validated_data['date_of_birth']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
-
-                instance.save()
+            instance.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
@@ -207,7 +206,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
-    doctor_clinics = serializers.StringRelatedField(read_only=True, many=True)
+    clinics = serializers.StringRelatedField(read_only=True, many=True)
     hospitals = serializers.StringRelatedField(read_only=True, many=True)
 
     class Meta:
@@ -227,8 +226,7 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
             instance.bio = validated_data['bio']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
-
-                instance.save()
+            instance.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
@@ -251,12 +249,11 @@ class HospitalSerializer(serializers.HyperlinkedModelSerializer):
             instance.phone_number = validated_data['phone_number']
             instance.address = validated_data['address']
             instance.post_code = validated_data['post_code']
-            instance.doctors = validated_data['doctors']
+            instance.doctors.set(validated_data['doctors'])
             instance.bio = validated_data['bio']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
-
-                instance.save()
+            instance.save()
         except Exception as e:
             InnerUserSerializer.rollback_user(user, previous_info)
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
