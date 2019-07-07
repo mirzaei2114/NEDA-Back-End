@@ -21,7 +21,7 @@ class PatientViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retr
     
     def list(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_patient:
-            queryset = self.filter_queryset(queryset=Patient.objects.get(user=request.user))
+            queryset = self.filter_queryset(queryset=Patient.objects.filter(user=request.user))
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
@@ -53,7 +53,7 @@ class DoctorViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retri
 
     def list(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_doctor:
-            queryset = self.filter_queryset(queryset=Doctor.objects.get(user=request.user))
+            queryset = self.filter_queryset(queryset=Doctor.objects.filter(user=request.user))
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
@@ -84,7 +84,7 @@ class HospitalViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Ret
 
     def list(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_hospital:
-            queryset = self.filter_queryset(queryset=Hospital.objects.get(user=request.user))
+            queryset = self.filter_queryset(queryset=Hospital.objects.filter(user=request.user))
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
