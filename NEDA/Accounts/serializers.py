@@ -246,7 +246,7 @@ class HospitalSerializer(serializers.HyperlinkedModelSerializer):
             instance.phone_number = validated_data['phone_number']
             instance.address = validated_data['address']
             instance.post_code = validated_data['post_code']
-            instance.doctors = validated_data['doctors']
+            instance.doctors.set(validated_data['doctors'])
             instance.bio = validated_data['bio']
             if 'picture' in validated_data.keys():
                 instance.picture = validated_data['picture']
