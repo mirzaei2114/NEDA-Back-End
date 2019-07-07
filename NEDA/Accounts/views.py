@@ -21,7 +21,7 @@ class PatientViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retr
     
     def list(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_patient:
-            queryset = self.filter_queryset(queryset=Patient.objects.get(user=request.user))
+            queryset = self.filter_queryset(queryset=Patient.objects.filter(user=request.user))
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
@@ -51,11 +51,9 @@ class DoctorViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retri
     search_fields = ('user__first_name', 'user__last_name')
     filterset_fields = ('gender', 'expertise', 'user__province')
 
-<<<<<<< HEAD
-=======
     def list(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_doctor:
-            queryset = Doctor.objects.filter(user=request.user)
+            queryset = self.filter_queryset(queryset=Doctor.objects.filter(user=request.user))
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
@@ -67,21 +65,6 @@ class DoctorViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retri
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_doctor:
-            queryset = self.filter_queryset(queryset=Doctor.objects.get(user=request.user))
-        else:
-            queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
->>>>>>> features/edit_and_deactive_profile
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         # self.perform_destroy(instance.user)
@@ -99,11 +82,9 @@ class HospitalViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Ret
     filter_backends = (filters.SearchFilter,)
     search_fields = ('user__first_name', 'address')
 
-<<<<<<< HEAD
-=======
     def list(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_hospital:
-            queryset = Hospital.objects.filter(user=request.user)
+            queryset = self.filter_queryset(queryset=Hospital.objects.filter(user=request.user))
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
@@ -115,21 +96,6 @@ class HospitalViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Ret
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_hospital:
-            queryset = self.filter_queryset(queryset=Hospital.objects.get(user=request.user))
-        else:
-            queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
->>>>>>> features/edit_and_deactive_profile
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         # self.perform_destroy(instance.user)
