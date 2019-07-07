@@ -17,10 +17,10 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from rest_framework.authtoken.views import obtain_auth_token
 
 from Accounts.views import PatientViewSet, DoctorViewSet, HospitalViewSet, UserViewSet
 from MedicalHistory.views import MedicalHistoryViewSet
+from NEDA.views import GetToken
 from TimeReservation.views import ClinicViewSet, AppointmentTimeViewSet, WorkingHourViewSet
 from RateAndComment.views import DoctorRateViewSet, DoctorCommentViewSet, ClinicCommentViewSet, ClinicRateViewSet, \
     HospitalCommentViewSet, HospitalRateViewSet
@@ -49,5 +49,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('rest_framework.urls')),
-    url(r'^get_token/', obtain_auth_token),
+    url(r'^get_token/', GetToken.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
