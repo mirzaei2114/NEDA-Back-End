@@ -22,6 +22,8 @@ from rest_framework.authtoken.views import obtain_auth_token
 from Accounts.views import PatientViewSet, DoctorViewSet, HospitalViewSet, UserViewSet
 from MedicalHistory.views import MedicalHistoryViewSet
 from TimeReservation.views import ClinicViewSet, AppointmentTimeViewSet, WorkingHourViewSet
+from RateAndComment.views import DoctorRateViewSet, DoctorCommentViewSet, ClinicCommentViewSet, ClinicRateViewSet, \
+    HospitalCommentViewSet, HospitalRateViewSet
 
 from django.conf.urls.static import static
 from NEDA import settings
@@ -35,6 +37,12 @@ router.register('clinics', ClinicViewSet)
 router.register('working_hours', WorkingHourViewSet)
 router.register('appointment_times', AppointmentTimeViewSet)
 router.register('medical_histories', MedicalHistoryViewSet)
+router.register('doctor_rates', DoctorRateViewSet)
+router.register('doctor_comments', DoctorCommentViewSet)
+router.register('hospital_rates', HospitalRateViewSet)
+router.register('hospital_comments', HospitalCommentViewSet)
+router.register('clinic_rates', ClinicRateViewSet)
+router.register('clinic_comments', ClinicCommentViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
