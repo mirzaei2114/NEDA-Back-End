@@ -41,9 +41,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'rest_framework.filters',
-    'Accounts',
     'corsheaders',
-    'TimeReservation'
+    'Accounts',
+    'TimeReservation',
+    'MedicalHistory'
 ]
 
 MIDDLEWARE = [
