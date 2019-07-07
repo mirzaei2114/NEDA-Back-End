@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser, UserManager as Django_UserM
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
+
 __PROVINCES = ['آذربایجان شرقی', 'آذربایجان غربی', 'اردبیل', 'اردبیل', 'اصفهان', 'البرز', 'ایلام', 'بوشهر', 'تهران',
                'چهارمحال و بختیاری', 'خراسان جنوبی', 'خراسان رضوی', 'خراسان شمالی', 'خوزستان', 'زنجان', 'سمنان',
                'سیستان و بلوچستان', 'فارس', 'قزوین', 'قم', 'کردستان', 'کرمان', 'کرمانشاه', 'کهگیلویه و بویراحمد',
@@ -60,7 +61,7 @@ class Hospital(models.Model):
     phone_number = models.CharField(max_length=8)
     address = models.CharField(max_length=512)
     post_code = models.CharField(max_length=10, primary_key=True)
-    doctors = models.ManyToManyField(Doctor, null=True)
+    doctors = models.ManyToManyField(Doctor, null=True, related_name='hospitals')
     bio = models.TextField(default='درباره بیمارستان :)')
     picture = models.ImageField(upload_to='Profile Pictures/Hospitals/',
                                 default='Profile Pictures/Hospitals/default.png', blank=True)
