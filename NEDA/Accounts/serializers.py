@@ -181,7 +181,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Patient
         fields = ('url', 'user', 'social_number', 'gender', 'mobile_number', 'phone_number', 'address', 'date_of_birth',
-                  'picture')
+                  'picture', 'patient_appointment_times')
         # depth = 1
 
     def update(self, instance, validated_data):
@@ -206,11 +206,13 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
+    clinics = serializers.StringRelatedField(read_only=True, many=True)
+    hospitals = serializers.StringRelatedField(read_only=True, many=True)
 
     class Meta:
         model = Doctor
         fields = ('url', 'user', 'gender', 'medical_system_number', 'expertise', 'date_of_birth', 'mobile_number',
-                  'bio', 'picture')
+                  'bio', 'picture', 'doctor_clinics', 'hospitals')
 
     def update(self, instance, validated_data):
         user, previous_info = InnerUserSerializer.update_user(validated_data, instance.user)
