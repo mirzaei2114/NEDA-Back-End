@@ -39,11 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
-    'rest_framework.filters',
-    'Accounts',
     'corsheaders',
-    'TimeReservation'
+    'Accounts',
+    'TimeReservation',
+    'MedicalHistory'
+
 ]
 
 MIDDLEWARE = [
@@ -136,9 +136,6 @@ LOGOUT_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'Accounts.MyUser'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
