@@ -1,5 +1,4 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, mixins, status, filters
+from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 
 from NEDA.permissions import IsSameUserSuperuserOrReadOnly, IsOwnerSuperuserOrReadOnly, IsNotAuthenticated
@@ -19,20 +18,6 @@ class PatientViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retr
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
 
-    def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_patient:
-            queryset = Patient.objects.filter(user=request.user)
-        else:
-            queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         # self.perform_destroy(instance.user)
@@ -47,23 +32,6 @@ class DoctorViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Retri
     permission_classes = (IsOwnerSuperuserOrReadOnly,)
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend,)
-    search_fields = ('user__first_name', 'user__last_name')
-    filterset_fields = ('gender', 'expertise', 'user__province')
-
-    def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_doctor:
-            queryset = Doctor.objects.filter(user=request.user)
-        else:
-            queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -79,22 +47,6 @@ class HospitalViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, mixins.Ret
     permission_classes = (IsOwnerSuperuserOrReadOnly,)
     queryset = Hospital.objects.all()
     serializer_class = HospitalSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__first_name', 'address')
-
-    def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_hospital:
-            queryset = Hospital.objects.filter(user=request.user)
-        else:
-            queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
