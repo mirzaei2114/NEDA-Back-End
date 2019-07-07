@@ -20,6 +20,7 @@ from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
 
 from Accounts.views import PatientViewSet, DoctorViewSet, HospitalViewSet, UserViewSet
+from MedicalHistory.views import MedicalHistoryViewSet
 from TimeReservation.views import ClinicViewSet, AppointmentTimeViewSet, WorkingHourViewSet
 
 from django.conf.urls.static import static
@@ -33,6 +34,7 @@ router.register('hospitals', HospitalViewSet)
 router.register('clinics', ClinicViewSet)
 router.register('working_hours', WorkingHourViewSet)
 router.register('appointment_times', AppointmentTimeViewSet)
+router.register('medical_history', MedicalHistoryViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,4 +42,4 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('rest_framework.urls')),
     url(r'^get_token/', obtain_auth_token),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
