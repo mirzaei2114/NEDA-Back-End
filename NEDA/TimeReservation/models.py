@@ -41,11 +41,22 @@ class AppointmentTime(models.Model):
     reservation_date_time = models.DateTimeField(null=True)
     has_reserved = models.BooleanField(default=False)
     price = models.IntegerField()
+    total_price = models.FloatField(default=0)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_appointment_times')
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True, related_name='patient_appointment_times')
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, null=True, related_name='clinic_appointment_times')
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True,
                                  related_name='hospital_appointment_times')
+
+    def __str__(self):
+        return self.id
+
+
+class Bonus(models.Model):
+    id = models.AutoField(primary_key=True)
+    amount = models.FloatField()
+    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE)
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.id

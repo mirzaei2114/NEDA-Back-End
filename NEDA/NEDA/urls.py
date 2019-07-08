@@ -17,11 +17,12 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework.viewsets import ViewSet
 
 from Accounts.views import PatientViewSet, DoctorViewSet, HospitalViewSet, UserViewSet
 from MedicalHistory.views import MedicalHistoryViewSet
 from NEDA.views import GetToken
-from TimeReservation.views import ClinicViewSet, AppointmentTimeViewSet, WorkingHourViewSet
+from TimeReservation.views import ClinicViewSet, AppointmentTimeViewSet, WorkingHourViewSet, BonusViewSet
 from RateAndComment.views import DoctorRateViewSet, DoctorCommentViewSet, ClinicCommentViewSet, ClinicRateViewSet, \
     HospitalCommentViewSet, HospitalRateViewSet
 
@@ -36,6 +37,7 @@ router.register('hospitals', HospitalViewSet)
 router.register('clinics', ClinicViewSet)
 router.register('working_hours', WorkingHourViewSet)
 router.register('appointment_times', AppointmentTimeViewSet)
+router.register('bonus', BonusViewSet)
 router.register('medical_histories', MedicalHistoryViewSet)
 router.register('doctor_rates', DoctorRateViewSet)
 router.register('doctor_comments', DoctorCommentViewSet)
