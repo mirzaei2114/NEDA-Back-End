@@ -1,6 +1,8 @@
 from django.utils import timezone
 from rest_framework import serializers
 
+from RateAndComment.serializers import DoctorRateSerializer, DoctorCommentSerializer, HospitalRateSerializer, \
+    HospitalCommentSerializer
 from TimeReservation.models import Clinic
 from .models import MyUser, Patient, Doctor, Hospital
 
@@ -177,11 +179,12 @@ class InnerUserSerializer(serializers.HyperlinkedModelSerializer):
 
 class PatientSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
+    wallet = serializers.ReadOnlyField()
 
     class Meta:
         model = Patient
         fields = ('url', 'user', 'social_number', 'gender', 'mobile_number', 'phone_number', 'address', 'date_of_birth',
-                  'picture', 'patient_appointment_times')
+                  'picture', 'patient_appointment_times', 'wallet')
         depth = 1
 
     def update(self, instance, validated_data):

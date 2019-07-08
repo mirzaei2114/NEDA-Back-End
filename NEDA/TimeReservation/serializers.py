@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 
 from rest_framework import serializers
 from Accounts.models import Doctor, Patient, Hospital
+from RateAndComment.serializers import ClinicRateSerializer, ClinicCommentSerializer
 from TimeReservation.models import Clinic, WorkingHour, AppointmentTime, DAYS_PER, Bonus
 
 
@@ -124,10 +125,11 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
     price = serializers.ReadOnlyField()
     total_price = serializers.ReadOnlyField()
     date_time = serializers.PrimaryKeyRelatedField(read_only=True)
+    bonus_amount = serializers.ReadOnlyField()
 
     class Meta:
         model = AppointmentTime
-        fields = ('url', 'id', 'date_time', 'reservation_date_time', 'has_reserved', 'price',
+        fields = ('url', 'id', 'date_time', 'reservation_date_time', 'has_reserved', 'price', 'bonus_amount',
                   'total_price', 'doctor', 'patient', 'clinic', 'hospital')
 
     def update(self, instance, validated_data):
@@ -141,27 +143,53 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                 instance.has_reserved = validated_data['has_reserved']
                 instance.patient = patient
                 instance.reservation_date_time = timezone.now()
+
                 try:
                     bonus = Bonus.objects.get(doctor=instance.doctor, patient=patient)
                     if instance.price - bonus.amount >= 0:
-                        instance.total_price = instance.price -  bonus.amount
+                        total_price = instance.price - bonus.amount
+                        instance.bonus_amount = bonus.amount
                         bonus.delete()
                     else:
-                        instance.total_price = 0
+                        total_price = 0
                         bonus.amount -= instance.price
+                        instance.bonus_amount = instance.price
                         bonus.save()
-                    instance.save()
-                    return instance
                 except Bonus.DoesNotExist:
-                    instance.total_price = instance.price
-                    instance.save()
-                    return instance
+                    total_price = instance.price
+
+                if instance.patient.wallet > 0:
+                    if instance.patient.wallet > total_price:
+                        instance.patient.wallet -= total_price
+                        total_price = 0
+                    else:
+                        total_price = total_price - instance.patient.wallet
+                        instance.patient.wallet = 0
+
+                instance.patient.save()
+                instance.total_price = total_price
+                instance.save()
+                return instance
             elif instance.has_reserved and not validated_data['has_reserved']:
                 request = self.context.get("request")
-                if request and hasattr(request, "user"):
-                    user = request.user
+                user = request.user
                 if user.is_patient:
                     instance.has_reserved = validated_data['has_reserved']
+                    if instance.bonus_amount > 0:
+                        try:
+                            bonus = Bonus.objects.get(doctor=instance.doctor, patient=instance.patient)
+                            bonus.amount += instance.bonus_amount
+                            bonus.save()
+                        except Bonus.DoesNotExist:
+                            bonus = Bonus.objects.create(patient=instance.patient, doctor=instance.doctor,
+                                                         amount=instance.bonus_amount)
+                            bonus.save()
+                        instance.patient.wallet += instance.price - instance.bonus_amount
+                        instance.patient.save()
+                    else:
+                        instance.patient.wallet += instance.price
+                        instance.patient.save()
+                    instance.bonus_amount = 0
                     instance.patient = None
                     instance.reservation_date_time = None
                     instance.total_price = 0
@@ -170,10 +198,29 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                 elif user.is_doctor:
                     doctor = Doctor.objects.get(user=user)
                     instance.has_reserved = validated_data['has_reserved']
+                    had_bonus = False
+                    if instance.bonus_amount > 0:
+                        try:
+                            bonus = Bonus.objects.get(doctor=instance.doctor, patient=instance.patient)
+                            bonus.amount += instance.bonus_amount
+                            had_bonus = True
+                            bonus.save()
+                        except Bonus.DoesNotExist:
+                            bonus = Bonus.objects.create(patient=instance.patient, doctor=instance.doctor,
+                                                         amount=instance.bonus_amount)
+                            bonus.save()
+                        instance.patient.wallet += instance.price - instance.bonus_amount
+                        instance.patient.save()
+                    else:
+                        instance.patient.wallet += instance.price
+                        instance.patient.save()
+                    bonus_amount = instance.bonus_amount
+                    instance.bonus_amount = 0
                     patient = instance.patient
                     instance.patient = None
                     reservation_date_time = instance.reservation_date_time
                     instance.reservation_date_time = None
+                    total_price = instance.total_price
                     instance.total_price = 0
                     instance.save()
                     try:
@@ -188,9 +235,13 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                             bonus.save()
                         return instance
                     except Exception as e:
+                        if not had_bonus:
+                            bonus.delete()
+                        instance.bonus_amount = bonus_amount
                         instance.patient = patient
                         instance.reservation_date_time = reservation_date_time
                         instance.has_reserved = True
+                        instance.total_price = total_price
                         instance.save()
                         raise serializers.ValidationError('Bad Request at: ' + str(e.args))
         except Exception as e:
