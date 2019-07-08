@@ -206,8 +206,6 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
-    doctor_clinics = serializers.StringRelatedField(read_only=True, many=True)
-    hospitals = serializers.StringRelatedField(read_only=True, many=True)
 
     class Meta:
         model = Doctor
