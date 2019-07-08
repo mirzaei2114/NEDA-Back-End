@@ -36,6 +36,7 @@ class Patient(models.Model):
     date_of_birth = models.DateField(null=True)
     picture = models.ImageField(upload_to='Profile Pictures/Patients/', default='Profile Pictures/Patients/default.png',
                                 blank=True)
+    wallet = models.FloatField(default=0)
 
     def __str__(self):
         return self.social_number

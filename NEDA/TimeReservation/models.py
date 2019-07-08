@@ -41,6 +41,7 @@ class AppointmentTime(models.Model):
     reservation_date_time = models.DateTimeField(null=True)
     has_reserved = models.BooleanField(default=False)
     price = models.IntegerField()
+    bonus_amount = models.FloatField(default=0)
     total_price = models.FloatField(default=0)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_appointment_times')
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True, related_name='patient_appointment_times')
