@@ -206,6 +206,8 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
+    doctor_rates = DoctorRateSerializer(many=True, read_only=True)
+    doctor_comments = DoctorCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Doctor
@@ -234,6 +236,8 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
 
 class HospitalSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
+    hospital_rates = HospitalRateSerializer(many=True, read_only=True)
+    hospital_comments = HospitalCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Hospital
