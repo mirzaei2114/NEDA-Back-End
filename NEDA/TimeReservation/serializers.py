@@ -8,8 +8,6 @@ from TimeReservation.models import Clinic, WorkingHour, AppointmentTime, DAYS_PE
 
 class ClinicSerializer(serializers.HyperlinkedModelSerializer):
     doctor = serializers.PrimaryKeyRelatedField(read_only=True)
-    clinic_rates = ClinicRateSerializer(many=True, read_only=True)
-    clinic_comments = ClinicCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Clinic
