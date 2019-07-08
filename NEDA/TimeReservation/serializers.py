@@ -11,7 +11,8 @@ class ClinicSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Clinic
-        fields = ('url', 'id', 'name', 'province', 'phone_number', 'address', 'doctor')
+        fields = ('url', 'id', 'name', 'province', 'phone_number', 'address', 'doctor', 'clinic_rates',
+                  'clinic_comments')
 
     def create(self, validated_data):
         try:

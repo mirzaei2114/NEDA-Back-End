@@ -182,7 +182,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
         model = Patient
         fields = ('url', 'user', 'social_number', 'gender', 'mobile_number', 'phone_number', 'address', 'date_of_birth',
                   'picture', 'patient_appointment_times')
-        # depth = 1
+        depth = 1
 
     def update(self, instance, validated_data):
         user, previous_info = InnerUserSerializer.update_user(validated_data, instance.user)
@@ -212,7 +212,8 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Doctor
         fields = ('url', 'user', 'gender', 'medical_system_number', 'expertise', 'date_of_birth', 'mobile_number',
-                  'bio', 'picture', 'doctor_clinics', 'hospitals')
+                  'bio', 'picture', 'doctor_clinics', 'hospitals', 'doctor_rates', 'doctor_comments')
+        depth = 1
 
     def update(self, instance, validated_data):
         user, previous_info = InnerUserSerializer.update_user(validated_data, instance.user)
@@ -239,7 +240,9 @@ class HospitalSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Hospital
-        fields = ('url', 'user', 'phone_number', 'address', 'post_code', 'doctors', 'bio', 'picture')
+        fields = ('url', 'user', 'phone_number', 'address', 'post_code', 'doctors', 'bio', 'picture', 'hospital_rates',
+                  'hospital_comments')
+        depth = 1
 
     def update(self, instance, validated_data):
         user, previous_info = InnerUserSerializer.update_user(validated_data, instance.user)
