@@ -26,7 +26,7 @@ class DoctorRateSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, attrs):
-        if 5 <= attrs['rate'] or attrs['rate'] <= 0:
+        if 5 < attrs['rate'] or attrs['rate'] < 0:
             raise serializers.ValidationError('Rate must be between 0 and 5')
 
         request = self.context.get("request")
@@ -93,7 +93,7 @@ class HospitalRateSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, attrs):
-        if 5 <= attrs['rate'] or attrs['rate'] <= 0:
+        if 5 < attrs['rate'] or attrs['rate'] < 0:
             raise serializers.ValidationError('Rate must be between 0 and 5')
 
         request = self.context.get("request")
@@ -161,7 +161,7 @@ class ClinicRateSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, attrs):
-        if 5 <= attrs['rate'] or attrs['rate'] <= 0:
+        if 5 < attrs['rate'] or attrs['rate'] < 0:
             raise serializers.ValidationError('Rate must be between 0 and 5')
 
         request = self.context.get("request")
