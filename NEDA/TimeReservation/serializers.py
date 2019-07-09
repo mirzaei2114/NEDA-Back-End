@@ -42,7 +42,6 @@ class WorkingHourSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'day', 'start', 'end', 'period', 'price', 'doctor', 'clinic', 'hospital')
 
     def validate(self, attrs):
-        print(attrs)
         if [attrs['clinic'], attrs['hospital']].count(None) != 1:
             raise serializers.ValidationError('Both clinic and hospital can not be null')
 
@@ -151,15 +150,36 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
     bonus_amount = serializers.ReadOnlyField()
     has_paid = serializers.ReadOnlyField()
     appointment_time_transaction = TransactionSerializer(read_only=True)
+    visitation_time = serializers.ReadOnlyField()
 
     class Meta:
         model = AppointmentTime
         fields = ('url', 'id', 'date_time', 'reservation_date_time', 'has_reserved', 'has_paid', 'price', 'bonus_amount'
-                  , 'total_price', 'doctor', 'patient', 'clinic', 'hospital', 'appointment_time_transaction')
+                  , 'total_price', 'doctor', 'patient', 'clinic', 'hospital', 'appointment_time_transaction',
+                  'visiting', 'visited', 'visitation_time',)
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        user = request.user
+        if user.is_patient and (attrs['visiting'] or attrs['visited']):
+            raise serializers.ValidationError('You can not do this!')
+        return super().validate(attrs)
 
     def update(self, instance, validated_data):
         try:
-            if not instance.has_reserved and validated_data['has_reserved']:
+
+            if instance.has_reserved and not instance.visiting and validated_data['visiting']:
+                instance.visiting = True
+                instance.save()
+                return instance
+            elif instance.has_reserved and instance.visiting and not instance.visited and validated_data['visited']:
+                instance.visiting = False
+                instance.visited = True
+                instance.visitation_time = timezone.now().time()
+                instance.save()
+                return instance
+            elif not instance.has_reserved and validated_data['has_reserved'] and not validated_data['visiting'] \
+                    and not validated_data['visited']:
                 patient = None
                 request = self.context.get("request")
                 if request and hasattr(request, "user"):
@@ -196,7 +216,8 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                 instance.save()
                 Transaction.objects.create(appointment_time=instance, price=total_price)
                 return instance
-            elif instance.has_reserved and not validated_data['has_reserved']:
+            elif instance.has_reserved and not validated_data['has_reserved'] and not validated_data['visiting'] \
+                    and not validated_data['visited']:
                 request = self.context.get("request")
                 user = request.user
                 if user.is_patient:
