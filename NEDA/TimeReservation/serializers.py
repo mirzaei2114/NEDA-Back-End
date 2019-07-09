@@ -11,11 +11,13 @@ class ClinicSerializer(serializers.HyperlinkedModelSerializer):
     doctor = serializers.PrimaryKeyRelatedField(read_only=True)
     clinic_rates = ClinicRateSerializer(many=True, read_only=True)
     clinic_comments = ClinicCommentSerializer(many=True, read_only=True)
+    rate = serializers.ReadOnlyField()
+    rate_number = serializers.ReadOnlyField()
 
     class Meta:
         model = Clinic
         fields = ('url', 'id', 'name', 'province', 'phone_number', 'address', 'doctor', 'clinic_rates',
-                  'clinic_comments')
+                  'clinic_comments', 'rate', 'rate_number')
 
     def create(self, validated_data):
         try:

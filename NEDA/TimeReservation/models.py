@@ -15,6 +15,8 @@ class Clinic(models.Model):
     phone_number = models.CharField(max_length=8)
     address = models.CharField(max_length=512)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_clinics')
+    rate = models.FloatField(default=2.5)
+    rate_number = models.BigIntegerField(default=0)
 
     def __str__(self):
         return str(self.id)

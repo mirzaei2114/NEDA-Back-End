@@ -16,10 +16,19 @@ class DoctorRateSerializer(serializers.ModelSerializer):
             patient = Patient.objects.get(user=user)
             try:
                 instance = DoctorRate.objects.get(patient=patient)
-                instance.rate = validated_data['rate']
+                old_rate = instance.rate
+                new_rate = validated_data['rate']
+                instance.rate = new_rate
+                instance.doctor.rate = (instance.doctor.rate * instance.doctor.rate_number
+                                        - old_rate + new_rate) / instance.doctor.rate_number
+                instance.doctor.save()
             except DoctorRate.DoesNotExist:
                 validated_data['patient'] = patient
                 instance = DoctorRate.objects.create(**validated_data)
+                instance.doctor.rate = (instance.doctor.rate * instance.doctor.rate_number
+                                        + validated_data['rate']) / (instance.doctor.rate_number + 1)
+                instance.doctor.rate_number += 1
+                instance.doctor.save()
             instance.save()
         except Exception as e:
             raise serializers.ValidationError('Bad Request at: ' + str(e.args))
@@ -83,10 +92,19 @@ class HospitalRateSerializer(serializers.ModelSerializer):
             patient = Patient.objects.get(user=user)
             try:
                 instance = HospitalRate.objects.get(patient=patient)
-                instance.rate = validated_data['rate']
+                old_rate = instance.rate
+                new_rate = validated_data['rate']
+                instance.rate = new_rate
+                instance.hospital.rate = (instance.hospital.rate * instance.hospital.rate_number
+                                          - old_rate + new_rate) / instance.hospital.rate_number
+                instance.hospital.save()
             except HospitalRate.DoesNotExist:
                 validated_data['patient'] = patient
                 instance = HospitalRate.objects.create(**validated_data)
+                instance.hospital.rate = (instance.hospital.rate * instance.hospital.rate_number
+                                          + validated_data['rate']) / (instance.hospital.rate_number + 1)
+                instance.hospital.rate_number += 1
+                instance.hospital.save()
             instance.save()
         except Exception as e:
             raise serializers.ValidationError('Bad Request at: ' + str(e.args))
@@ -151,10 +169,19 @@ class ClinicRateSerializer(serializers.ModelSerializer):
             patient = Patient.objects.get(user=user)
             try:
                 instance = ClinicRate.objects.get(patient=patient)
-                instance.rate = validated_data['rate']
+                old_rate = instance.rate
+                new_rate = validated_data['rate']
+                instance.rate = new_rate
+                instance.clinic.rate = (instance.clinic.rate * instance.clinic.rate_number
+                                        - old_rate + new_rate) / instance.clinic.rate_number
+                instance.clinic.save()
             except ClinicRate.DoesNotExist:
                 validated_data['patient'] = patient
                 instance = ClinicRate.objects.create(**validated_data)
+                instance.clinic.rate = (instance.clinic.rate * instance.clinic.rate_number
+                                        + validated_data['rate']) / (instance.clinic.rate_number + 1)
+                instance.clinic.rate_number += 1
+                instance.clinic.save()
             instance.save()
         except Exception as e:
             raise serializers.ValidationError('Bad Request at: ' + str(e.args))
