@@ -66,9 +66,6 @@ class ReserveTimePermission(permissions.BasePermission):
     """
     Custom permission to only allow a patient to reserve or cancel his/her own time and readonly for others
     """
-    """
-    Custom permission to only allow an authenticated user to create an object and an owner to edit his/her object
-    """
     def has_permission(self, request, view):
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
@@ -85,7 +82,8 @@ class ReserveTimePermission(permissions.BasePermission):
 
         if request.user.is_patient:
             patient = Patient.objects.get(user=request.user)
-            return not obj.has_reserved or (obj.has_reserved and obj.patient == patient)
+            return not obj.has_reserved or \
+                   (obj.has_reserved and not obj.visiting and not obj.visited and obj.patient == patient)
         elif request.user.is_doctor:
             doctor = Doctor.objects.get(user=request.user)
             return obj.has_reserved and obj.doctor == doctor
