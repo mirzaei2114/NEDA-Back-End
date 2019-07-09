@@ -40,9 +40,7 @@ class AppointmentTime(models.Model):
     date_time = models.DateTimeField()
     reservation_date_time = models.DateTimeField(null=True)
     has_reserved = models.BooleanField(default=False)
-    visitation_time = models.TimeField(null=True, default=None)
-    visiting = models.BooleanField(default=False)
-    visited = models.BooleanField(default=False)
+    has_paid = models.BooleanField(default=False)
     price = models.IntegerField()
     bonus_amount = models.FloatField(default=0)
     total_price = models.FloatField(default=0)
@@ -53,7 +51,7 @@ class AppointmentTime(models.Model):
                                  related_name='hospital_appointment_times')
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
 class Bonus(models.Model):
@@ -64,3 +62,16 @@ class Bonus(models.Model):
 
     def __str__(self):
         return self.id
+
+
+class Transaction(models.Model):
+    id = models.AutoField(primary_key=True)
+    price = models.IntegerField()
+    card_number = models.IntegerField(max_length=16, null=True)
+    date_time = models.DateTimeField(null=True)
+    success = models.BooleanField(default=False)
+    appointment_time = models.OneToOneField(AppointmentTime, on_delete=models.CASCADE,
+                                            related_name='appointment_time_transaction')
+
+    def __str__(self):
+        return str(self.id)
