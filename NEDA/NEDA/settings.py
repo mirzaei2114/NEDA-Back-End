@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework.filters',
     'corsheaders',
+    'django_cron',
     'Accounts',
     'TimeReservation',
     'MedicalHistory',
@@ -116,13 +117,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -157,3 +158,11 @@ MEDIA_URL = '/Media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
 
 CORS_ORIGIN_WHITELIST = 'http://localhost:3000',
+
+CRON_CLASSES = ['django_cron.cron.FailedRunsNotificationCronJob',
+                'NEDA.schedule_jobs.CreateNew', ]
+
+ADMINS = [('Mohammad Javad', 'mohammadjavad.pirhadi@gmail.com'),
+          ('Motahhare', 'm.mirzaei2114@yahoo.com')]
+
+FAILED_RUNS_CRONJOB_EMAIL_PREFIX = "[Server check]: "
