@@ -33,6 +33,11 @@ class ClinicSerializer(serializers.HyperlinkedModelSerializer):
         except Exception as e:
             raise serializers.ValidationError('Bad Request at: ' + str(e.args))
 
+    def validate(self, attrs):
+        if 'phone_number' not in attrs or not str(attrs['phone_number']).isdigit():
+            raise serializers.ValidationError('Enter a valid phone number')
+        return super().validate(attrs)
+
 
 class WorkingHourSerializer(serializers.HyperlinkedModelSerializer):
     doctor = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -345,3 +350,4 @@ class BonusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Bonus
         fields = ('url', 'id', 'amount', 'doctor', 'patient')
+
