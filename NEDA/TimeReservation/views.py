@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, filters
 
-from NEDA.permissions import IsSameDoctorIsDoctorOrReadonly, ReserveTimePermission
-from TimeReservation.models import Clinic, WorkingHour, AppointmentTime, Bonus
+from NEDA.permissions import IsSameDoctorIsDoctorOrReadonly, ReserveTimePermission, TransactionPermission
+from TimeReservation.models import Clinic, WorkingHour, AppointmentTime, Bonus, Transaction
 from TimeReservation.serializers import ClinicSerializer, WorkingHourSerializer, \
-    AppointmentTimeSerializer, BonusSerializer
+    AppointmentTimeSerializer, BonusSerializer, TransactionSerializer
 
 
 # Create your views here.
@@ -54,3 +54,15 @@ class BonusViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
     serializer_class = BonusSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('doctor', 'patient')
+
+
+class TransactionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                         viewsets.GenericViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
+    permission_classes = (TransactionPermission,)
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('appointment_time',)

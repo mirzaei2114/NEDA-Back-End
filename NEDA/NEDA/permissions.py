@@ -113,3 +113,20 @@ class IsSamePatientAuthenticatedOrReadOnly(permissions.BasePermission):
 
         patient = Patient.objects.get(user=request.user)
         return obj.patient == patient
+
+
+class TransactionPermission(permissions.BasePermission):
+    """
+    Custom permission to only allow owner of an object to edit it.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if not (request.user.is_authenticated and request.user.is_patient):
+            return False
+
+        patient = Patient.objects.get(user=request.user)
+        return request.method == 'PUT' and obj.appointment_time.patient == patient

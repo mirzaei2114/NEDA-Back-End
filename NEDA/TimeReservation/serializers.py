@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from rest_framework import serializers
 from Accounts.models import Doctor, Patient, Hospital
 from RateAndComment.serializers import ClinicRateSerializer, ClinicCommentSerializer
-from TimeReservation.models import Clinic, WorkingHour, AppointmentTime, DAYS_PER, Bonus
+from TimeReservation.models import Clinic, WorkingHour, AppointmentTime, DAYS_PER, Bonus, Transaction
 
 
 class ClinicSerializer(serializers.HyperlinkedModelSerializer):
@@ -116,6 +116,29 @@ class WorkingHourSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError('Bad Request at: ' + str(e.args))
 
 
+class TransactionSerializer(serializers.HyperlinkedModelSerializer):
+    price = serializers.ReadOnlyField()
+    date_time = serializers.ReadOnlyField()
+    appointment_time = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Transaction
+        fields = ('url', 'id', 'price', 'card_number', 'date_time', 'success', 'appointment_time')
+
+    def update(self, instance, validated_data):
+        try:
+            if not instance.success and validated_data['success']:
+                instance.success = True
+                instance.date_time = timezone.now()
+                instance.card_number = validated_data['card_number']
+                instance.appointment_time.has_paid = True
+                instance.appointment_time.save()
+                instance.save()
+                return instance
+        except Exception as e:
+            raise serializers.ValidationError('Bad Request at: ' + str(e.args))
+
+
 class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
     doctor = serializers.PrimaryKeyRelatedField(read_only=True)
     patient = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -126,11 +149,13 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
     total_price = serializers.ReadOnlyField()
     date_time = serializers.PrimaryKeyRelatedField(read_only=True)
     bonus_amount = serializers.ReadOnlyField()
+    has_paid = serializers.ReadOnlyField()
+    appointment_time_transaction = TransactionSerializer(read_only=True)
 
     class Meta:
         model = AppointmentTime
-        fields = ('url', 'id', 'date_time', 'reservation_date_time', 'has_reserved', 'price', 'bonus_amount',
-                  'total_price', 'doctor', 'patient', 'clinic', 'hospital')
+        fields = ('url', 'id', 'date_time', 'reservation_date_time', 'has_reserved', 'has_paid', 'price', 'bonus_amount'
+                  , 'total_price', 'doctor', 'patient', 'clinic', 'hospital', 'appointment_time_transaction')
 
     def update(self, instance, validated_data):
         try:
@@ -169,6 +194,7 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                 instance.patient.save()
                 instance.total_price = total_price
                 instance.save()
+                Transaction.objects.create(appointment_time=instance, price=total_price)
                 return instance
             elif instance.has_reserved and not validated_data['has_reserved']:
                 request = self.context.get("request")
