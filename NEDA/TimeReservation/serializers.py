@@ -11,11 +11,13 @@ class ClinicSerializer(serializers.HyperlinkedModelSerializer):
     doctor = serializers.PrimaryKeyRelatedField(read_only=True)
     clinic_rates = ClinicRateSerializer(many=True, read_only=True)
     clinic_comments = ClinicCommentSerializer(many=True, read_only=True)
+    rate = serializers.ReadOnlyField()
+    rate_number = serializers.ReadOnlyField()
 
     class Meta:
         model = Clinic
         fields = ('url', 'id', 'name', 'province', 'phone_number', 'address', 'doctor', 'clinic_rates',
-                  'clinic_comments')
+                  'clinic_comments', 'rate', 'rate_number')
 
     def create(self, validated_data):
         try:
@@ -42,7 +44,6 @@ class WorkingHourSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'day', 'start', 'end', 'period', 'price', 'doctor', 'clinic', 'hospital')
 
     def validate(self, attrs):
-        print(attrs)
         if [attrs['clinic'], attrs['hospital']].count(None) != 1:
             raise serializers.ValidationError('Both clinic and hospital can not be null')
 
@@ -120,10 +121,16 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
     price = serializers.ReadOnlyField()
     date_time = serializers.ReadOnlyField()
     appointment_time = serializers.PrimaryKeyRelatedField(read_only=True)
+    paid_back = serializers.ReadOnlyField()
+
+    def validate(self, attrs):
+        if len(str(attrs['card_number'])) != 16 or not str(attrs['card_number']).isdigit():
+            raise serializers.ValidationError('Enter a valid card number')
+        return super().validate(attrs)
 
     class Meta:
         model = Transaction
-        fields = ('url', 'id', 'price', 'card_number', 'date_time', 'success', 'appointment_time')
+        fields = ('url', 'id', 'price', 'card_number', 'date_time', 'success', 'paid_back', 'appointment_time')
 
     def update(self, instance, validated_data):
         try:
@@ -150,16 +157,38 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
     date_time = serializers.PrimaryKeyRelatedField(read_only=True)
     bonus_amount = serializers.ReadOnlyField()
     has_paid = serializers.ReadOnlyField()
-    appointment_time_transaction = TransactionSerializer(read_only=True)
+    last_transaction_id = serializers.ReadOnlyField()
+    visitation_time = serializers.ReadOnlyField()
+    appointment_time_transaction = TransactionSerializer(many=True, read_only=True)
 
     class Meta:
         model = AppointmentTime
         fields = ('url', 'id', 'date_time', 'reservation_date_time', 'has_reserved', 'has_paid', 'price', 'bonus_amount'
-                  , 'total_price', 'doctor', 'patient', 'clinic', 'hospital', 'appointment_time_transaction')
+                  , 'total_price', 'doctor', 'patient', 'clinic', 'hospital', 'appointment_time_transaction',
+                  'last_transaction_id', 'visiting', 'visited', 'visitation_time',)
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        user = request.user
+        if user.is_patient and (attrs['visiting'] or attrs['visited']):
+            raise serializers.ValidationError('You can not do this!')
+        return super().validate(attrs)
 
     def update(self, instance, validated_data):
         try:
-            if not instance.has_reserved and validated_data['has_reserved']:
+
+            if instance.has_reserved and not instance.visiting and validated_data['visiting']:
+                instance.visiting = True
+                instance.save()
+                return instance
+            elif instance.has_reserved and instance.visiting and not instance.visited and validated_data['visited']:
+                instance.visiting = False
+                instance.visited = True
+                instance.visitation_time = timezone.now().time()
+                instance.save()
+                return instance
+            elif not instance.has_reserved and validated_data['has_reserved'] and not validated_data['visiting'] \
+                    and not validated_data['visited']:
                 patient = None
                 request = self.context.get("request")
                 if request and hasattr(request, "user"):
@@ -193,12 +222,15 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
 
                 instance.patient.save()
                 instance.total_price = total_price
+                transaction = Transaction.objects.create(appointment_time=instance, price=total_price)
+                instance.last_transaction_id = transaction.id
                 instance.save()
-                Transaction.objects.create(appointment_time=instance, price=total_price)
                 return instance
-            elif instance.has_reserved and not validated_data['has_reserved']:
+            elif instance.has_reserved and not validated_data['has_reserved'] and not validated_data['visiting'] \
+                    and not validated_data['visited']:
                 request = self.context.get("request")
                 user = request.user
+                transaction = Transaction.objects.get(id=instance.last_transaction_id)
                 if user.is_patient:
                     instance.has_reserved = validated_data['has_reserved']
                     if instance.bonus_amount > 0:
@@ -210,15 +242,28 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                             bonus = Bonus.objects.create(patient=instance.patient, doctor=instance.doctor,
                                                          amount=instance.bonus_amount)
                             bonus.save()
-                        instance.patient.wallet += instance.price - instance.bonus_amount
-                        instance.patient.save()
-                    else:
+                        if transaction.success:
+                            instance.patient.wallet += instance.price - instance.bonus_amount
+                            instance.patient.save()
+                    elif transaction.success:
                         instance.patient.wallet += instance.price
                         instance.patient.save()
                     instance.bonus_amount = 0
                     instance.patient = None
                     instance.reservation_date_time = None
                     instance.total_price = 0
+                    last_transaction_id = instance.last_transaction_id
+                    try:
+                        instance.last_transaction_id = None
+                        if transaction.success:
+                            transaction.paid_back = True
+                        transaction.save()
+                    except Exception as e:
+                        instance.last_transaction_id = last_transaction_id
+                        if transaction:
+                            transaction.paid_back = False
+                            transaction.save()
+                        raise serializers.ValidationError('Bad Request at: ' + str(e.args))
                     instance.save()
                     return instance
                 elif user.is_doctor:
@@ -235,9 +280,10 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                             bonus = Bonus.objects.create(patient=instance.patient, doctor=instance.doctor,
                                                          amount=instance.bonus_amount)
                             bonus.save()
-                        instance.patient.wallet += instance.price - instance.bonus_amount
-                        instance.patient.save()
-                    else:
+                        if transaction.success:
+                            instance.patient.wallet += instance.price - instance.bonus_amount
+                            instance.patient.save()
+                    elif transaction.success:
                         instance.patient.wallet += instance.price
                         instance.patient.save()
                     bonus_amount = instance.bonus_amount
@@ -248,6 +294,18 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                     instance.reservation_date_time = None
                     total_price = instance.total_price
                     instance.total_price = 0
+                    last_transaction_id = instance.last_transaction_id
+                    try:
+                        instance.last_transaction_id = None
+                        if transaction.success:
+                            transaction.paid_back = True
+                        transaction.save()
+                    except Exception as e:
+                        instance.last_transaction_id = last_transaction_id
+                        if transaction:
+                            transaction.paid_back = False
+                            transaction.save()
+                        raise serializers.ValidationError('Bad Request at: ' + str(e.args))
                     instance.save()
                     try:
                         amount = 0.1 * instance.price
@@ -268,6 +326,10 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
                         instance.reservation_date_time = reservation_date_time
                         instance.has_reserved = True
                         instance.total_price = total_price
+                        instance.last_transaction_id = last_transaction_id
+                        if transaction:
+                            transaction.paid_back = False
+                            transaction.save()
                         instance.save()
                         raise serializers.ValidationError('Bad Request at: ' + str(e.args))
         except Exception as e:

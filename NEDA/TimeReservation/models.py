@@ -15,6 +15,8 @@ class Clinic(models.Model):
     phone_number = models.CharField(max_length=8)
     address = models.CharField(max_length=512)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_clinics')
+    rate = models.FloatField(default=2.5)
+    rate_number = models.BigIntegerField(default=0)
 
     def __str__(self):
         return str(self.id)
@@ -41,9 +43,13 @@ class AppointmentTime(models.Model):
     reservation_date_time = models.DateTimeField(null=True)
     has_reserved = models.BooleanField(default=False)
     has_paid = models.BooleanField(default=False)
+    visitation_time = models.TimeField(null=True, default=None)
+    visiting = models.BooleanField(default=False)
+    visited = models.BooleanField(default=False)
     price = models.IntegerField()
     bonus_amount = models.FloatField(default=0)
     total_price = models.FloatField(default=0)
+    last_transaction_id = models.IntegerField(default=None, null=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_appointment_times')
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True, related_name='patient_appointment_times')
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, null=True, related_name='clinic_appointment_times')
@@ -70,8 +76,9 @@ class Transaction(models.Model):
     card_number = models.IntegerField(max_length=16, null=True)
     date_time = models.DateTimeField(null=True)
     success = models.BooleanField(default=False)
-    appointment_time = models.OneToOneField(AppointmentTime, on_delete=models.CASCADE,
-                                            related_name='appointment_time_transaction')
+    paid_back = models.BooleanField(default=False)
+    appointment_time = models.ForeignKey(AppointmentTime, on_delete=models.CASCADE,
+                                         related_name='appointment_time_transaction')
 
     def __str__(self):
         return str(self.id)
