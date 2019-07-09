@@ -9,3 +9,5 @@ class MedicalHistoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSameDoctorIsDoctorOrReadonly,)
     queryset = MedicalHistory.objects.all()
     serializer_class = MedicalHistorySerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('doctor', 'patient')
