@@ -211,11 +211,14 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
     doctor_rates = DoctorRateSerializer(many=True, read_only=True)
     doctor_comments = DoctorCommentSerializer(many=True, read_only=True)
+    rate = serializers.ReadOnlyField()
+    rate_number = serializers.ReadOnlyField()
 
     class Meta:
         model = Doctor
         fields = ('url', 'user', 'gender', 'medical_system_number', 'expertise', 'date_of_birth', 'mobile_number',
-                  'bio', 'picture', 'doctor_clinics', 'hospitals', 'doctor_rates', 'doctor_comments')
+                  'bio', 'picture', 'doctor_clinics', 'hospitals', 'doctor_rates', 'doctor_comments',
+                  'rate', 'rate_number')
         depth = 1
 
     def update(self, instance, validated_data):
@@ -242,11 +245,13 @@ class HospitalSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
     hospital_rates = HospitalRateSerializer(many=True, read_only=True)
     hospital_comments = HospitalCommentSerializer(many=True, read_only=True)
+    rate = serializers.ReadOnlyField()
+    rate_number = serializers.ReadOnlyField()
 
     class Meta:
         model = Hospital
         fields = ('url', 'user', 'phone_number', 'address', 'post_code', 'doctors', 'bio', 'picture', 'hospital_rates',
-                  'hospital_comments')
+                  'hospital_comments', 'rate', 'rate_number')
         depth = 1
 
     def update(self, instance, validated_data):
