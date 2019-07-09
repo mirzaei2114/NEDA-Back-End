@@ -3,3 +3,5 @@ djangorestframework
 Pillow
 django-cors-headers
 django-filter
+django_cron
+django-common

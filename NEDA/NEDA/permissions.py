@@ -66,18 +66,28 @@ class ReserveTimePermission(permissions.BasePermission):
     """
     Custom permission to only allow a patient to reserve or cancel his/her own time and readonly for others
     """
+    def has_permission(self, request, view):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user.is_authenticated
+
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS or (request.user.is_authenticated and request.user.is_superuser):
+        if request.method in permissions.SAFE_METHODS or request.user.is_superuser:
             return True
 
-        if not (request.user.is_authenticated and request.user.is_patient):
-            return False
-
-        patient = Patient.objects.get(user=request.user)
-
-        return not obj.has_reserved or (obj.has_reserved and obj.patient == patient)
+        if request.user.is_patient:
+            patient = Patient.objects.get(user=request.user)
+            return not obj.has_reserved or \
+                   (obj.has_reserved and not obj.visiting and not obj.visited and obj.patient == patient)
+        elif request.user.is_doctor:
+            doctor = Doctor.objects.get(user=request.user)
+            return obj.has_reserved and obj.doctor == doctor
+        return False
 
 
 class IsSamePatientAuthenticatedOrReadOnly(permissions.BasePermission):
@@ -101,3 +111,20 @@ class IsSamePatientAuthenticatedOrReadOnly(permissions.BasePermission):
 
         patient = Patient.objects.get(user=request.user)
         return obj.patient == patient
+
+
+class TransactionPermission(permissions.BasePermission):
+    """
+    Custom permission to only allow owner of an object to edit it.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if not (request.user.is_authenticated and request.user.is_patient):
+            return False
+
+        patient = Patient.objects.get(user=request.user)
+        return request.method == 'PUT' and obj.appointment_time.patient == patient
