@@ -49,51 +49,52 @@ class AppointmentTimeViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     filterset_fields = ('date_time', 'doctor', 'patient', 'clinic', 'hospital')
 
     def list(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_patient:
-            patient = Patient.objects.get(user=request.user)
-            patient_appointment_time = AppointmentTime.objects.filter(
-                patient=patient, date_time__date=timezone.now().date()).first()
-            if patient_appointment_time:
-                if patient_appointment_time.clinic:
+        if 'time_estimate' in request.query_params and request.query_params.get('time_estimate') == 'true':
+            if request.user.is_authenticated and request.user.is_patient:
+                patient = Patient.objects.get(user=request.user)
+                patient_appointment_time = AppointmentTime.objects.filter(
+                    patient=patient, date_time__date=timezone.now().date()).first()
+                if patient_appointment_time:
+                    if patient_appointment_time.clinic:
+                        queryset = self.filter_queryset(
+                            queryset=AppointmentTime.objects.filter(
+                                clinic=patient_appointment_time.clinic,
+                                date_time__date=timezone.now().date()).order_by('date_time'))
+                    elif patient_appointment_time.hospital:
+                        queryset = self.filter_queryset(
+                            queryset=AppointmentTime.objects.filter(
+                                hospital=patient_appointment_time.hospital,
+                                date_time__date=timezone.now().date()).order_by('date_time'))
+                else:
+                    return Response({'Info': 'You have no appointment time today'}, status.HTTP_204_NO_CONTENT)
+            elif request.user.is_authenticated and request.user.is_doctor:
+                doctor = Doctor.objects.get(user=request.user)
+                doctor_appointment_time = AppointmentTime.objects.filter(
+                    doctor=doctor, date_time__date=timezone.now().date()).first()
+                if doctor_appointment_time:
+                    if doctor_appointment_time.clinic:
+                        queryset = self.filter_queryset(
+                            queryset=AppointmentTime.objects.filter(
+                                clinic=doctor_appointment_time.clinic,
+                                date_time__date=timezone.now().date()).order_by('date_time'))
+                    elif doctor_appointment_time.hospital:
+                        queryset = self.filter_queryset(
+                            queryset=AppointmentTime.objects.filter(
+                                hospital=doctor_appointment_time.hospital,
+                                date_time__date=timezone.now().date()).order_by('date_time'))
+                else:
+                    return Response({'Info': 'You have no appointment time today'}, status.HTTP_204_NO_CONTENT)
+            elif request.user.is_authenticated and request.user.is_hospital:
+                hospital = Hospital.objects.get(user=request.user)
+                hospital_appointment_time = AppointmentTime.objects.filter(
+                    hospital=hospital, date_time__date=timezone.now().date()).first()
+                if hospital_appointment_time:
                     queryset = self.filter_queryset(
                         queryset=AppointmentTime.objects.filter(
-                            clinic=patient_appointment_time.clinic,
+                            hospital=hospital_appointment_time.hospital,
                             date_time__date=timezone.now().date()).order_by('date_time'))
-                elif patient_appointment_time.hospital:
-                    queryset = self.filter_queryset(
-                        queryset=AppointmentTime.objects.filter(
-                            hospital=patient_appointment_time.hospital,
-                            date_time__date=timezone.now().date()).order_by('date_time'))
-            else:
-                return Response({'Info': 'You have no appointment time today'}, status.HTTP_204_NO_CONTENT)
-        elif request.user.is_authenticated and request.user.is_doctor:
-            doctor = Doctor.objects.get(user=request.user)
-            doctor_appointment_time = AppointmentTime.objects.filter(
-                doctor=doctor, date_time__date=timezone.now().date()).first()
-            if doctor_appointment_time:
-                if doctor_appointment_time.clinic:
-                    queryset = self.filter_queryset(
-                        queryset=AppointmentTime.objects.filter(
-                            clinic=doctor_appointment_time.clinic,
-                            date_time__date=timezone.now().date()).order_by('date_time'))
-                elif doctor_appointment_time.hospital:
-                    queryset = self.filter_queryset(
-                        queryset=AppointmentTime.objects.filter(
-                            hospital=doctor_appointment_time.hospital,
-                            date_time__date=timezone.now().date()).order_by('date_time'))
-            else:
-                return Response({'Info': 'You have no appointment time today'}, status.HTTP_204_NO_CONTENT)
-        elif request.user.is_authenticated and request.user.is_hospital:
-            hospital = Hospital.objects.get(user=request.user)
-            hospital_appointment_time = AppointmentTime.objects.filter(
-                hospital=hospital, date_time__date=timezone.now().date()).first()
-            if hospital_appointment_time:
-                queryset = self.filter_queryset(
-                    queryset=AppointmentTime.objects.filter(
-                        hospital=hospital_appointment_time.hospital,
-                        date_time__date=timezone.now().date()).order_by('date_time'))
-            else:
-                return Response({'Info': 'You have no appointment time today'}, status.HTTP_204_NO_CONTENT)
+                else:
+                    return Response({'Info': 'You have no appointment time today'}, status.HTTP_204_NO_CONTENT)
         else:
             queryset = self.filter_queryset(self.get_queryset())
 
