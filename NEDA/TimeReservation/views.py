@@ -52,3 +52,5 @@ class BonusViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
     """
     queryset = Bonus.objects.all()
     serializer_class = BonusSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('doctor', 'patient')
