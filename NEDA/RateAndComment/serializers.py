@@ -42,7 +42,9 @@ class DoctorRateSerializer(serializers.ModelSerializer):
         user = request.user
         patient = Patient.objects.get(user=user)
         try:
-            AppointmentTime.objects.get(patient=patient, doctor=attrs['doctor'])
+            appointment_time = AppointmentTime.objects.get(patient=patient, doctor=attrs['doctor'])
+            if not appointment_time.visited:
+                raise serializers.ValidationError('You can rate only doctors you have visited by')
         except AppointmentTime.DoesNotExist:
             raise serializers.ValidationError('You can rate only doctors you have visited by')
         return super().validate(attrs)
@@ -72,7 +74,9 @@ class DoctorCommentSerializer(serializers.ModelSerializer):
         user = request.user
         patient = Patient.objects.get(user=user)
         try:
-            AppointmentTime.objects.get(patient=patient, doctor=attrs['doctor'])
+            appointment_time = AppointmentTime.objects.get(patient=patient, doctor=attrs['doctor'])
+            if not appointment_time.visited:
+                raise serializers.ValidationError('You can left comment only about doctors you have visited by')
         except AppointmentTime.DoesNotExist:
             raise serializers.ValidationError('You can left comment only about doctors you have visited by')
         return super().validate(attrs)
@@ -118,7 +122,9 @@ class HospitalRateSerializer(serializers.ModelSerializer):
         user = request.user
         patient = Patient.objects.get(user=user)
         try:
-            AppointmentTime.objects.get(patient=patient, hospital=attrs['hospital'])
+            appointment_time = AppointmentTime.objects.get(patient=patient, hospital=attrs['hospital'])
+            if not appointment_time.visited:
+                raise serializers.ValidationError('You can rate only hospitals you have visited by a doctor at it')
         except AppointmentTime.DoesNotExist:
             raise serializers.ValidationError('You can rate only hospitals you have visited by a doctor at it')
         return super().validate(attrs)
@@ -148,7 +154,10 @@ class HospitalCommentSerializer(serializers.ModelSerializer):
         user = request.user
         patient = Patient.objects.get(user=user)
         try:
-            AppointmentTime.objects.get(patient=patient, hospital=attrs['hospital'])
+            appointment_time = AppointmentTime.objects.get(patient=patient, hospital=attrs['hospital'])
+            if not appointment_time.visited:
+                raise serializers.ValidationError('You can left comment only about hospitals you have visited by '
+                                                  'a doctor at it')
         except AppointmentTime.DoesNotExist:
             raise serializers.ValidationError('You can left comment only about hospitals you have visited by a doctor'
                                               ' at it')
@@ -195,7 +204,9 @@ class ClinicRateSerializer(serializers.ModelSerializer):
         user = request.user
         patient = Patient.objects.get(user=user)
         try:
-            AppointmentTime.objects.get(patient=patient, clinic=attrs['clinic'])
+            appointment_time = AppointmentTime.objects.get(patient=patient, clinic=attrs['clinic'])
+            if not appointment_time.visited:
+                raise serializers.ValidationError('You can rate only clinics you have visited by a doctor at it')
         except AppointmentTime.DoesNotExist:
             raise serializers.ValidationError('You can rate only clinics you have visited by a doctor at it')
         return super().validate(attrs)
@@ -225,7 +236,10 @@ class ClinicCommentSerializer(serializers.ModelSerializer):
         user = request.user
         patient = Patient.objects.get(user=user)
         try:
-            AppointmentTime.objects.get(patient=patient, clinic=attrs['clinic'])
+            appointment_time = AppointmentTime.objects.get(patient=patient, clinic=attrs['clinic'])
+            if not appointment_time.visited:
+                raise serializers.ValidationError('You can left comment only about clinics you have visited by a doctor'
+                                                  ' at it')
         except AppointmentTime.DoesNotExist:
             raise serializers.ValidationError('You can left comment only about clinics you have visited by a doctor'
                                               ' at it')
