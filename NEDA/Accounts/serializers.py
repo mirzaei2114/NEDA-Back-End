@@ -1,3 +1,4 @@
+from django.contrib.auth import password_validation
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -25,6 +26,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         doctor = None
         hospital = None
         if validated_data['is_patient'] and not validated_data['is_doctor'] and not validated_data['is_hospital']:
+            if 'mobile_number' not in validated_data or \
+                    len(str(validated_data['mobile_number'])) != 11 or not str(validated_data['mobile_number']).isdigit():
+                raise serializers.ValidationError('Enter a valid mobile number like: 09XXXXXXXXX')
+            if 'social_number' not in validated_data or \
+                    len(str(validated_data['social_number'])) != 10 or not str(validated_data['social_number']).isdigit():
+                raise serializers.ValidationError('Enter a valid social number')
             user = MyUser.objects.create(
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
@@ -52,6 +59,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 raise serializers.ValidationError('Bad request at: ' + str(e.args))
 
         elif not validated_data['is_patient'] and validated_data['is_doctor'] and not validated_data['is_hospital']:
+            if 'mobile_number' not in validated_data or \
+                    len(str(validated_data['mobile_number'])) != 11 or not str(validated_data['mobile_number']).isdigit():
+                raise serializers.ValidationError('Enter a valid mobile number like: 09XXXXXXXXX')
             user = MyUser.objects.create(
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
@@ -81,6 +91,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 raise serializers.ValidationError('Bad request at: ' + str(e.args))
 
         elif not validated_data['is_patient'] and not validated_data['is_doctor'] and validated_data['is_hospital']:
+            if 'post_code' not in validated_data or \
+                    len(str(validated_data['post_code'])) != 10 or not str(validated_data['post_code']).isdigit():
+                raise serializers.ValidationError('Enter a valid post code')
+            if 'phone_number' not in validated_data or not str(validated_data['phone_number']).isdigit():
+                raise serializers.ValidationError('Enter a valid phone number')
             user = MyUser.objects.create(
                 first_name=validated_data['first_name'],
                 username=validated_data['username'],
@@ -135,6 +150,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'medical_system_number', 'expertise', 'post_code',)
 
     def validate(self, attrs):
+        if 'password' not in attrs:
+            raise serializers.ValidationError('Enter a password')
+        password_validation.validate_password(attrs['password'])
         if [attrs['is_patient'], attrs['is_doctor'], attrs['is_hospital']].count(True) != 1:
             raise serializers.ValidationError('A user can be one of patient, doctor or hospital')
         return super().validate(attrs)
@@ -206,6 +224,15 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
 
         return instance
 
+    def validate(self, attrs):
+        if 'mobile_number' not in attrs or \
+                len(str(attrs['mobile_number'])) != 11 or not str(attrs['mobile_number']).isdigit():
+            raise serializers.ValidationError('Enter a valid mobile number like: 09XXXXXXXXX')
+        if 'social_number' not in attrs or \
+                len(str(attrs['social_number'])) != 10 or not str(attrs['social_number']).isdigit():
+            raise serializers.ValidationError('Enter a valid social number')
+        return super().validate(attrs)
+
 
 class DoctorSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
@@ -240,6 +267,12 @@ class DoctorSerializer(serializers.HyperlinkedModelSerializer):
 
         return instance
 
+    def validate(self, attrs):
+        if 'mobile_number' not in attrs or \
+                len(str(attrs['mobile_number'])) != 11 or not str(attrs['mobile_number']).isdigit():
+            raise serializers.ValidationError('Enter a valid mobile number like: 09XXXXXXXXX')
+        return super().validate(attrs)
+
 
 class HospitalSerializer(serializers.HyperlinkedModelSerializer):
     user = InnerUserSerializer()
@@ -272,3 +305,11 @@ class HospitalSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError('Bad request at: ' + str(e.args))
 
         return instance
+
+    def validate(self, attrs):
+        if 'post_code' not in attrs or \
+                len(str(attrs['post_code'])) != 10 or not str(attrs['post_code']).isdigit():
+            raise serializers.ValidationError('Enter a valid post code')
+        if 'phone_number' not in attrs or not str(attrs['phone_number']).isdigit():
+            raise serializers.ValidationError('Enter a valid phone number')
+        return super().validate(attrs)
