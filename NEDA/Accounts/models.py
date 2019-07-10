@@ -52,6 +52,8 @@ class Doctor(models.Model):
     bio = models.CharField(max_length=1024, default='درباره شما :)')
     picture = models.ImageField(upload_to='Profile Pictures/Doctors/', default='Profile Pictures/Doctors/default.png',
                                 blank=True)
+    rate = models.FloatField(default=2.5)
+    rate_number = models.BigIntegerField(default=0)
 
     def __str__(self):
         return self.medical_system_number
@@ -66,6 +68,8 @@ class Hospital(models.Model):
     bio = models.TextField(default='درباره بیمارستان :)')
     picture = models.ImageField(upload_to='Profile Pictures/Hospitals/',
                                 default='Profile Pictures/Hospitals/default.png', blank=True)
+    rate = models.FloatField(default=2.5)
+    rate_number = models.BigIntegerField(default=0)
 
     def __str__(self):
         return self.post_code

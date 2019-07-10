@@ -345,4 +345,3 @@ class BonusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Bonus
         fields = ('url', 'id', 'amount', 'doctor', 'patient')
-
