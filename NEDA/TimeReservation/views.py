@@ -126,4 +126,4 @@ class TransactionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixin
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('appointment_time',)
+    filterset_fields = ('appointment_time', 'appointment_time__patient', 'appointment_time__doctor',)
