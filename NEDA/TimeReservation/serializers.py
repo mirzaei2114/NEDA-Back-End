@@ -181,8 +181,10 @@ class AppointmentTimeSerializer(serializers.HyperlinkedModelSerializer):
 
     def update(self, instance, validated_data):
         try:
-
             if instance.has_reserved and not instance.visiting and validated_data['visiting']:
+                if instance.date_time.date() != timezone.now().date():
+                    raise serializers.ValidationError('You can\'t visit patient that has '
+                                                      'appointment time in another day!!!')
                 instance.visiting = True
                 instance.save()
                 return instance
